@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 
@@ -18,19 +17,24 @@ export class ProductsService {
     return this.productRepository.save(product);
   }
 
+  async searchByName(
+    name: string,
+    options: { page: number; limit: number },
+  ): Promise<[Product[], number]> {
+    const { page, limit } = options;
+    const [result, total] = await this.productRepository.findAndCount({
+      where: [
+        { nameEn: Like(`%${name}%`) },
+        { nameTh: Like(`%${name}%`) },
+        { nameEs: Like(`%${name}%`) },
+      ],
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return [result, total];
+  }
+
   findAll() {
     return this.productRepository.find();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
-  }
-
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
   }
 }

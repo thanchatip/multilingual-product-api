@@ -1,73 +1,78 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Back-end Answers
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-  
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Q1: Assuming the system currently has three microservices: Customer API, Master Data API, and Transaction Data API, there is a new feature that requires data from all three microservices to be displayed in near real-time. The current technology stack includes REST APIs and an RDBMS database. How would you design a new API for this feature ?
 
-## Description
+Answer:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. Create Api Gateway which handle requests and call microservices correctly.
+2. Create New Microservices to implement data which contains information from three microservices(Customer, Master data and Transactional data) by sending HTTP request to each service and return the result data to client user.
+3. Use cache to collect data which use frequently.
 
-## Installation
+---
 
-```bash
-$ npm install
-```
+## Q2: Assuming the team has started planning a new project, the project manager asks you for a performance test strategy plan for this release. How would you recommend proceeding to the project manager?
 
-## Running the app
+Answers:
 
-```bash
-# development
-$ npm run start
+1. Set Project Performance Goals based on user requirements.
+2. Setup production likely test environments.
+3. Create and execute test scenarios then analyze the results.
+4. Integrate with CI/CD.
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## Q3: Additional Requirements
 
-## Test
+### Validation: Outline how you will validate data inputs in both APIs to ensure data integrity.
 
-```bash
-# unit tests
-$ npm run test
+Answers:
 
-# e2e tests
-$ npm run test:e2e
+-In **Multilingual Product API** validate product name and description (in CreateProductDto) to be string type and not an empty value using _class-validatior_ library.
 
-# test coverage
-$ npm run test:cov
-```
+-In **Multilingual Product Search API** validate keyword which is name to be not empty string value (in SearchProductDto) and pagination attributes like page and limit be optional string query using _class-validatior_ library.
 
-## Support
+### Database Design: Describe the database schema and the approach you will use to handle multilingual support for product information.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Answers:
 
-## Stay in touch
+- Multilingual Product Information Table
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Key            | Type   | Description                       |
+| -------------- | ------ | --------------------------------- |
+| id             | uuid   | primary key                       |
+| name_th        | string | name of product in Thai           |
+| description_th | string | description of product in Thai    |
+| name_en        | string | name of product in English        |
+| description_en | string | description of product in English |
+| name_es        | string | name of product in Spanish        |
+| description_es | string | description of product in Spanish |
 
-## License
+- Multilingual support handling
 
-  Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. Fetch Multilingual Product by selecting from specified language columns.
+
+2. Lookup for product in every language column which matches the keyword.
+
+### Testing Strategy: Explain your strategy for testing these APIs, including how you will handle unit tests, integration tests, and any end-to-end testing considerations.
+
+Answers:
+
+- Unit Tests:
+
+  - Create Product API
+
+    1. Mock product data and database call then fetch create service to see results.
+
+  - Search Product API
+    1. Mock product data list and database call then fetch search service with keyword(product name) in any language and see result if service can response the correct results with pagination value.
+
+- Integration tests:
+
+  - Setup postgres database for testing
+  - **Product Create API** try to create a product by sending request to create service.
+  - **Product Search API** after create products try to search product name.
+  - Checking service response handling.
+
+- End-to-End tests:
+  - Try to send request product information to create service and see that service response success status.
+  - Try to search product name and see that service response the correct result.

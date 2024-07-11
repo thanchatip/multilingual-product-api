@@ -22,6 +22,9 @@ export class ProductsService {
     options: { page: number; limit: number },
   ): Promise<[Product[], number]> {
     const { page, limit } = options;
+
+    Logger.log(`Searching for products with name "${name}"...`);
+    Logger.log(`Page: ${page}, Limit: ${limit}`);
     const [result, total] = await this.productRepository.findAndCount({
       where: [
         { nameEn: Like(`%${name}%`) },

@@ -1,8 +1,16 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 
 import { Product } from './entities/product.entity';
+import { SearchProductsDto } from './dto/search-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -15,14 +23,18 @@ export class ProductsController {
 
   @Get('search')
   async search(
-    @Query('name') name: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query(ValidationPipe) query: SearchProductsDto,
   ): Promise<{ data: Product[]; totalRecords: number }> {
+    const { name, page, limit } = query;
+
+    let pageNumber = page ? parseInt(page) : 1;
+    let limitNumber = limit ? parseInt(limit) : 10;
+
     const [data, totalRecords] = await this.productsService.searchByName(name, {
-      page,
-      limit,
+      page: pageNumber,
+      limit: limitNumber,
     });
+
     return { data, totalRecords };
   }
 
